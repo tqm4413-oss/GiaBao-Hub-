@@ -1,0 +1,187 @@
+-- Gia Bao Shader 🌈 | 5 Presets | Toggle Circle Image
+
+local Lighting = game:GetService("Lighting")
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
+--------------------------------------------------
+-- CLEAR EFFECTS
+--------------------------------------------------
+local function ClearEffects()
+	for _,v in pairs(Lighting:GetChildren()) do
+		if v:IsA("BloomEffect")
+		or v:IsA("SunRaysEffect")
+		or v:IsA("ColorCorrectionEffect")
+		or v:IsA("Atmosphere")
+		or v:IsA("Sky") then
+			v:Destroy()
+		end
+	end
+end
+
+--------------------------------------------------
+-- REALISTIC CLOUD SKY
+--------------------------------------------------
+local function RealCloudSky()
+	local s = Instance.new("Sky", Lighting)
+	s.SkyboxBk = "rbxassetid://159454299"
+	s.SkyboxDn = "rbxassetid://159454296"
+	s.SkyboxFt = "rbxassetid://159454293"
+	s.SkyboxLf = "rbxassetid://159454286"
+	s.SkyboxRt = "rbxassetid://159454300"
+	s.SkyboxUp = "rbxassetid://159454288"
+end
+
+--------------------------------------------------
+-- SHADER PRESETS
+--------------------------------------------------
+local Shader = {}
+
+-- 1️⃣ Sun + Wet + Reflection
+Shader[1] = function()
+	ClearEffects()
+	Lighting.ClockTime = 13
+	Lighting.Brightness = 3
+	Lighting.EnvironmentSpecularScale = 1
+	RealCloudSky()
+
+	local atm = Instance.new("Atmosphere", Lighting)
+	atm.Density = 0.3
+	atm.Haze = 1
+	atm.Glare = 0.25
+
+	local bloom = Instance.new("BloomEffect", Lighting)
+	bloom.Intensity = 0.6
+	bloom.Size = 56
+
+	local sun = Instance.new("SunRaysEffect", Lighting)
+	sun.Intensity = 0.3
+end
+
+-- 2️⃣ Ultra Dark
+Shader[2] = function()
+	ClearEffects()
+	Lighting.ClockTime = 0
+	Lighting.Brightness = 0.2
+
+	local cc = Instance.new("ColorCorrectionEffect", Lighting)
+	cc.Brightness = -0.4
+	cc.Saturation = -1
+	cc.Contrast = 0.2
+end
+
+-- 3️⃣ Sunset
+Shader[3] = function()
+	ClearEffects()
+	Lighting.ClockTime = 18.5
+	Lighting.Brightness = 2.5
+	RealCloudSky()
+
+	local cc = Instance.new("ColorCorrectionEffect", Lighting)
+	cc.TintColor = Color3.fromRGB(255,170,120)
+	cc.Contrast = 0.25
+
+	local sun = Instance.new("SunRaysEffect", Lighting)
+	sun.Intensity = 0.35
+end
+
+-- 4️⃣ Early Morning 4–5 AM
+Shader[4] = function()
+	ClearEffects()
+	Lighting.ClockTime = 4.8
+	Lighting.Brightness = 1.8
+	Lighting.EnvironmentSpecularScale = 1
+	RealCloudSky()
+
+	local atm = Instance.new("Atmosphere", Lighting)
+	atm.Density = 0.25
+	atm.Haze = 1.2
+
+	local bloom = Instance.new("BloomEffect", Lighting)
+	bloom.Intensity = 0.4
+end
+
+-- 5️⃣ Night Lights
+Shader[5] = function()
+	ClearEffects()
+	Lighting.ClockTime = 23
+	Lighting.Brightness = 1.5
+
+	local cc = Instance.new("ColorCorrectionEffect", Lighting)
+	cc.TintColor = Color3.fromRGB(170,190,255)
+	cc.Contrast = 0.2
+
+	local bloom = Instance.new("BloomEffect", Lighting)
+	bloom.Intensity = 1
+	bloom.Size = 64
+end
+
+--------------------------------------------------
+-- GUI
+--------------------------------------------------
+local gui = Instance.new("ScreenGui", Player.PlayerGui)
+gui.Name = "GiaBaoShader"
+gui.ResetOnSpawn = false
+
+-- MAIN SQUARE
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0, 240, 0, 270)
+main.Position = UDim2.new(0.05, 0, 0.4, 0)
+main.BackgroundColor3 = Color3.fromRGB(20,20,20)
+main.Active = true
+main.Draggable = true
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 16)
+
+-- TITLE
+local title = Instance.new("TextLabel", main)
+title.Size = UDim2.new(1,0,0,36)
+title.Text = "Gia Bao Shader 🌈"
+title.Font = Enum.Font.GothamBold
+title.TextSize = 16
+title.TextColor3 = Color3.new(1,1,1)
+title.BackgroundTransparency = 1
+
+-- SCROLL
+local scroll = Instance.new("ScrollingFrame", main)
+scroll.Position = UDim2.new(0,0,0,40)
+scroll.Size = UDim2.new(1,0,1,-40)
+scroll.CanvasSize = UDim2.new(0,0,0,350)
+scroll.ScrollBarImageTransparency = 0.3
+
+local function MakeButton(text, y, callback)
+	local b = Instance.new("TextButton", scroll)
+	b.Size = UDim2.new(0.9,0,0,55)
+	b.Position = UDim2.new(0.05,0,0,y)
+	b.TextWrapped = true
+	b.TextScaled = true
+	b.Text = text
+	b.BackgroundColor3 = Color3.fromRGB(40,40,40)
+	b.TextColor3 = Color3.new(1,1,1)
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0,12)
+	b.MouseButton1Click:Connect(callback)
+end
+
+MakeButton("☀️ Sun • Wet • Reflection • Real Clouds", 0, Shader[1])
+MakeButton("🌑 Ultra Dark", 70, Shader[2])
+MakeButton("🌇 Sunset • Real Clouds", 140, Shader[3])
+MakeButton("🌄 4–5 AM Morning • Reflection", 210, Shader[4])
+MakeButton("🌃 Night • Lights", 280, Shader[5])
+
+--------------------------------------------------
+-- TOGGLE CIRCLE (IMAGE BUTTON)
+--------------------------------------------------
+local toggle = Instance.new("ImageButton", gui)
+toggle.Size = UDim2.new(0, 60, 0, 60)
+toggle.Position = UDim2.new(0.02, 0, 0.5, 0)
+toggle.Image = "rbxassetid://99890177235110"
+toggle.BackgroundColor3 = Color3.fromRGB(255,255,255)
+toggle.BackgroundTransparency = 0
+toggle.Active = true
+toggle.Draggable = true
+Instance.new("UICorner", toggle).CornerRadius = UDim.new(1,0)
+
+local opened = true
+toggle.MouseButton1Click:Connect(function()
+	opened = not opened
+	main.Visible = opened
+end)
