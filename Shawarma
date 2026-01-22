@@ -1,0 +1,204 @@
+-- 🌯 Gia Bao Shawarma Hub | Rayfield UI | Rainbow Theme
+
+-- Load Rayfield
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+
+-- Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local VirtualUser = game:GetService("VirtualUser")
+
+local LP = Players.LocalPlayer
+local Char = LP.Character or LP.CharacterAdded:Wait()
+LP.CharacterAdded:Connect(function(c)
+	Char = c
+end)
+
+--------------------------------------------------
+-- STATES
+--------------------------------------------------
+local AutoFarm = false
+local AutoUpgrade = false
+local SpeedHack = false
+local WalkSpeed = 35
+local Noclip = false
+local AntiAFK = true
+
+--------------------------------------------------
+-- WINDOW
+--------------------------------------------------
+local Window = Rayfield:CreateWindow({
+	Name = "🌈🌯 Gia Bao Shawarma Hub",
+	LoadingTitle = "Gia Bao Hub",
+	LoadingSubtitle = "Rainbow Edition",
+	ConfigurationSaving = {
+		Enabled = true,
+		FolderName = "GiaBaoHub",
+		FileName = "ShawarmaRainbow"
+	},
+	KeySystem = false
+})
+
+--------------------------------------------------
+-- RAINBOW THEME FUNCTION
+--------------------------------------------------
+task.spawn(function()
+	local hue = 0
+	while task.wait(0.03) do
+		hue = (hue + 1) % 360
+		local col = Color3.fromHSV(hue / 360, 1, 1)
+
+		pcall(function()
+			Rayfield.Theme.TextColor = col
+			Rayfield.Theme.Background = col
+			Rayfield.Theme.Topbar = col
+			Rayfield.Theme.ElementBackground = col
+			Rayfield.Theme.ElementBackgroundHover = col
+			Rayfield.Theme.TabBackground = col
+			Rayfield.Theme.TabStroke = col
+			Rayfield.Theme.ToggleBackground = col
+			Rayfield.Theme.SliderBackground = col
+		end)
+	end
+end)
+
+--------------------------------------------------
+-- TABS
+--------------------------------------------------
+local MainTab = Window:CreateTab("Main", 4483362458)
+local PlayerTab = Window:CreateTab("Player", 4483362458)
+local SettingsTab = Window:CreateTab("Settings", 4483362458)
+
+--------------------------------------------------
+-- MAIN FEATURES
+--------------------------------------------------
+MainTab:CreateToggle({
+	Name = "Auto Farm Shawarma",
+	CurrentValue = false,
+	Callback = function(v)
+		AutoFarm = v
+	end
+})
+
+MainTab:CreateToggle({
+	Name = "Auto Upgrade",
+	CurrentValue = false,
+	Callback = function(v)
+		AutoUpgrade = v
+	end
+})
+
+--------------------------------------------------
+-- PLAYER FEATURES
+--------------------------------------------------
+PlayerTab:CreateToggle({
+	Name = "Speed Hack",
+	CurrentValue = false,
+	Callback = function(v)
+		SpeedHack = v
+	end
+})
+
+PlayerTab:CreateSlider({
+	Name = "Walk Speed",
+	Range = {16, 100},
+	Increment = 1,
+	Suffix = "Speed",
+	CurrentValue = WalkSpeed,
+	Callback = function(v)
+		WalkSpeed = v
+	end
+})
+
+PlayerTab:CreateToggle({
+	Name = "Noclip",
+	CurrentValue = false,
+	Callback = function(v)
+		Noclip = v
+	end
+})
+
+--------------------------------------------------
+-- SETTINGS
+--------------------------------------------------
+SettingsTab:CreateToggle({
+	Name = "Anti AFK",
+	CurrentValue = true,
+	Callback = function(v)
+		AntiAFK = v
+	end
+})
+
+SettingsTab:CreateButton({
+	Name = "Rejoin Server",
+	Callback = function()
+		game:GetService("TeleportService"):Teleport(game.PlaceId, LP)
+	end
+})
+
+--------------------------------------------------
+-- LOGIC
+--------------------------------------------------
+
+-- Anti AFK
+LP.Idled:Connect(function()
+	if AntiAFK then
+		VirtualUser:Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+		task.wait(1)
+		VirtualUser:Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+	end
+end)
+
+-- Speed
+RunService.RenderStepped:Connect(function()
+	if Char and Char:FindFirstChild("Humanoid") then
+		if SpeedHack then
+			Char.Humanoid.WalkSpeed = WalkSpeed
+		end
+	end
+end)
+
+-- Noclip
+RunService.Stepped:Connect(function()
+	if Noclip and Char then
+		for _,v in pairs(Char:GetDescendants()) do
+			if v:IsA("BasePart") then
+				v.CanCollide = false
+			end
+		end
+	end
+end)
+
+-- Auto Farm
+task.spawn(function()
+	while task.wait(0.25) do
+		if not AutoFarm then continue end
+		for _,v in pairs(workspace:GetDescendants()) do
+			if v:IsA("ProximityPrompt") then
+				pcall(function()
+					fireproximityprompt(v)
+				end)
+			end
+		end
+	end
+end)
+
+-- Auto Upgrade
+task.spawn(function()
+	while task.wait(2) do
+		if not AutoUpgrade then continue end
+		for _,v in pairs(workspace:GetDescendants()) do
+			if v:IsA("ProximityPrompt") and v.Name:lower():find("upgrade") then
+				pcall(function()
+					fireproximityprompt(v)
+				end)
+			end
+		end
+	end
+end)
+
+Rayfield:Notify({
+	Title = "Gia Bao Shawarma Hub 🌈",
+	Content = "Rainbow Theme Loaded!",
+	Duration = 5
+})
